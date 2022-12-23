@@ -12,13 +12,15 @@ def log(s):
 
 aA = []
 cmpfun = lambda x:x["stargazers_count"]
-for i in range(0,10):
-    log("## " + str(n))
-    r = requests.get('https://api.github.com/search/repositories?o=desc&q=CVE-'+str(n)+'-&s=updated&type=Repositories')
+for _ in range(10):
+    log(f"## {str(n)}")
+    r = requests.get(
+        f'https://api.github.com/search/repositories?o=desc&q=CVE-{str(n)}-&s=updated&type=Repositories'
+    )
     a = json.loads(r.text)
     if "items" in a:
         a = a["items"]
-        xY += ["* [" + str(n) + " year top total " + str(len(a)) + "](#"+ str(n) +")"]
+        xY += [f"* [{str(n)} year top total {len(a)}](#{str(n)})"]
         log("|star|updated_at|name|url|des|")
         log("|---|---|---|---|---|")
         #a.sort(key=cmpfun,reverse=True)
@@ -29,15 +31,15 @@ for i in range(0,10):
             # print(json.dumps(x))
             # if x:
                 szDes = x["description"]
-                if None == szDes:
+                if szDes is None:
                     szDes = ""
                 log("|" +"|".join([str(x["stargazers_count"]),x["updated_at"],x["name"],x["html_url"],szDes])+"|")
             except Exception as e:
                 pass
                 # print(x)
-            # break
+                    # break
         n = n - 1
-if 1 < len(xY):
+if len(xY) > 1:
     print("\n".join(xY))
     print("\n".join(xOut))
 
@@ -54,9 +56,10 @@ class Info():
 
 xY = []
 # 也许这里去重会有问题
-temp = []
-for x in aA:
-    temp.append(Info(x["description"],x["stargazers_count"],x["name"],x["html_url"]))
+temp = [
+    Info(x["description"], x["stargazers_count"], x["name"], x["html_url"])
+    for x in aA
+]
 aA = list(set(temp))
 cmpfun = lambda x:x.stargazers_count
 # aA.sort(key=cmpfun,reverse=True)
@@ -66,13 +69,12 @@ xY += ["|---|---|---|---|---|"]
 for x in aA:
     try:
         szDes = x.description
-        if None == szDes:
+        if szDes is None:
             szDes = ""
         xY += ["|" +"|".join([str(x.stargazers_count),x["updated_at"],x.name,x.html_url,szDes])+"|"]
     except Exception as e:
         pass
-if 0 < len(aA):
-    f11 = open("Top.md","wb")
-    f11.write("\n".join(xY).encode('utf-8'))
-    f11.close()
+if aA:
+    with open("Top.md","wb") as f11:
+        f11.write("\n".join(xY).encode('utf-8'))
 # ?q=user%3Ahktalent&type=Repositories')
